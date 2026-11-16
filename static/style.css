@@ -1,0 +1,87 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    padding: 2rem;
+    background: #111827;
+    border-bottom: 1px solid #1f2937;
+}
+
+header h1 {
+    color: #60a5fa;
+    font-size: 2.5rem;
+}
+
+header p {
+    color: #94a3b8;
+    margin-top: 0.5rem;
+}
+
+main {
+    max-width: 1200px;
+    margin: auto;
+    padding: 2rem;
+}
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.card {
+    background: #1e293b;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.card h2 {
+    font-size: 1rem;
+    color: #cbd5e1;
+}
+
+.card p {
+    margin-top: 1rem;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #38bdf8;
+}
+
+.upload-area,
+.findings {
+    margin-top: 2rem;
+    background: #1e293b;
+    padding: 2rem;
+    border-radius: 12px;
+}
+
+#upload-btn {
+    margin-top: 1rem;
+    background: #2563eb;
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#upload-btn:hover {
+    background: #1d4ed8;
+}
+
+.finding-placeholder {
+    margin-top: 1rem;
+    color: #94a3b8;
+}

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AzureGuard</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <header>
+        <h1>AzureGuard</h1>
+        <p>Cloud Security Posture Management Platform</p>
+    </header>
+
+    <main>
+
+        <section class="summary-cards">
+
+            <div class="card">
+                <h2>Resources Scanned</h2>
+                <p>0</p>
+            </div>
+
+            <div class="card">
+                <h2>Findings</h2>
+                <p>0</p>
+            </div>
+
+            <div class="card">
+                <h2>Risk Score</h2>
+                <p>0</p>
+            </div>
+
+            <div class="card">
+                <h2>Security Grade</h2>
+                <p>N/A</p>
+            </div>
+
+        </section>
+
+        <section class="upload-area">
+
+            <h2>Upload Azure Snapshot</h2>
+
+            <button id="upload-btn">
+                Upload Configuration
+            </button>
+
+        </section>
+
+        <section class="findings">
+
+            <h2>Security Findings</h2>
+
+            <div class="finding-placeholder">
+                No findings available.
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
