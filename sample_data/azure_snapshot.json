@@ -1,0 +1,21 @@
+{
+    "storage_accounts": [
+        {
+            "name": "storage001",
+            "public_access": true,
+            "encrypted": false
+        }
+    ],
+    "network_security_groups": [
+        {
+            "name": "web-nsg",
+            "open_rdp": true
+        }
+    ],
+    "users": [
+        {
+            "name": "cloud-admin",
+            "role": "Owner"
+        }
+    ]
+}

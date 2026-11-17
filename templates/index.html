@@ -44,24 +44,46 @@
 
             <h2>Upload Azure Snapshot</h2>
 
-            <button id="upload-btn">
-                Upload Configuration
-            </button>
+            <form action="/upload" method="POST" enctype="multipart/form-data">
+
+                <input
+                    type="file"
+                    name="snapshot"
+                    accept=".json"
+                    required
+                >
+
+                <button type="submit" id="upload-btn">
+                    Upload Snapshot
+                </button>
+
+            </form>
+
+            {% if error %}
+                <p style="color:red; margin-top:15px;">
+                    {{ error }}
+                </p>
+            {% endif %}
 
         </section>
+
+        {% if resources %}
 
         <section class="findings">
 
-            <h2>Security Findings</h2>
+            <h2>Uploaded Resources</h2>
 
-            <div class="finding-placeholder">
-                No findings available.
-            </div>
+            <pre>
+{{ resources | tojson(indent=4) }}
+            </pre>
 
         </section>
+
+        {% endif %}
 
     </main>
 
     <script src="{{ url_for('static', filename='app.js') }}"></script>
+
 </body>
 </html>
