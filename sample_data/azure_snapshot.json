@@ -6,16 +6,25 @@
             "encrypted": false
         }
     ],
+
     "network_security_groups": [
         {
             "name": "web-nsg",
-            "open_rdp": true
+            "open_rdp": true,
+            "open_ssh": true
         }
     ],
+
     "users": [
         {
             "name": "cloud-admin",
             "role": "Owner"
+        },
+
+        {
+            "name": "external-consultant",
+            "role": "Owner",
+            "guest": true
         }
     ]
 }

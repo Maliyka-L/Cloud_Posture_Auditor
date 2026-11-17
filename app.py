@@ -1,5 +1,6 @@
 import json
 from flask import Flask, render_template, request
+from auditor import run_audit
 
 app = Flask(__name__)
 
@@ -19,12 +20,16 @@ def upload_file():
         try:
             data = json.load(uploaded_file)
 
+            findings = run_audit(data)
+
             return render_template(
                 "index.html",
-                resources=data
+                resources=data,
+                findings=findings
             )
 
         except Exception as e:
+
             return render_template(
                 "index.html",
                 error=f"Invalid JSON file: {e}"

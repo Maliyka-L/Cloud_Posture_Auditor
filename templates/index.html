@@ -25,7 +25,7 @@
 
             <div class="card">
                 <h2>Findings</h2>
-                <p>0</p>
+                <p>{{ findings|length if findings else 0 }}</p>
             </div>
 
             <div class="card">
@@ -60,9 +60,9 @@
             </form>
 
             {% if error %}
-                <p style="color:red; margin-top:15px;">
-                    {{ error }}
-                </p>
+            <p style="color:red; margin-top:15px;">
+                {{ error }}
+            </p>
             {% endif %}
 
         </section>
@@ -76,6 +76,41 @@
             <pre>
 {{ resources | tojson(indent=4) }}
             </pre>
+
+        </section>
+
+        {% endif %}
+
+        {% if findings %}
+
+        <section class="findings">
+
+            <h2>Security Findings</h2>
+
+            {% for finding in findings %}
+
+            <div class="finding-card">
+
+                <h3>{{ finding.title }}</h3>
+
+                <p>
+                    <strong>Severity:</strong>
+                    {{ finding.severity }}
+                </p>
+
+                <p>
+                    <strong>Resource:</strong>
+                    {{ finding.resource }}
+                </p>
+
+                <p>
+                    <strong>Recommendation:</strong>
+                    {{ finding.recommendation }}
+                </p>
+
+            </div>
+
+            {% endfor %}
 
         </section>
 
