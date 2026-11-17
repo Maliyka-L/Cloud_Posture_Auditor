@@ -20,22 +20,40 @@
 
             <div class="card">
                 <h2>Resources Scanned</h2>
-                <p>0</p>
+
+                <p>
+                {% if resources %}
+                    {{ resources.storage_accounts|length +
+                       resources.network_security_groups|length +
+                       resources.users|length }}
+                {% else %}
+                    0
+                {% endif %}
+                </p>
             </div>
 
             <div class="card">
                 <h2>Findings</h2>
-                <p>{{ findings|length if findings else 0 }}</p>
+
+                <p>
+                    {{ findings|length if findings else 0 }}
+                </p>
             </div>
 
             <div class="card">
                 <h2>Risk Score</h2>
-                <p>0</p>
+
+                <p>
+                    {{ risk_score if risk_score else 0 }}
+                </p>
             </div>
 
             <div class="card">
                 <h2>Security Grade</h2>
-                <p>N/A</p>
+
+                <p>
+                    {{ security_grade if security_grade else "N/A" }}
+                </p>
             </div>
 
         </section>
@@ -60,9 +78,9 @@
             </form>
 
             {% if error %}
-            <p style="color:red; margin-top:15px;">
-                {{ error }}
-            </p>
+                <p style="color:red; margin-top:15px;">
+                    {{ error }}
+                </p>
             {% endif %}
 
         </section>

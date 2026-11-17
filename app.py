@@ -1,6 +1,8 @@
 import json
 from flask import Flask, render_template, request
+
 from auditor import run_audit
+from scoring import calculate_risk
 
 app = Flask(__name__)
 
@@ -22,10 +24,14 @@ def upload_file():
 
             findings = run_audit(data)
 
+            risk_score, security_grade = calculate_risk(findings)
+
             return render_template(
                 "index.html",
                 resources=data,
-                findings=findings
+                findings=findings,
+                risk_score=risk_score,
+                security_grade=security_grade
             )
 
         except Exception as e:
