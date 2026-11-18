@@ -3,6 +3,7 @@ from flask import Flask, render_template, request
 
 from auditor import run_audit
 from scoring import calculate_risk
+from analytics import calculate_severity_counts
 
 app = Flask(__name__)
 
@@ -26,12 +27,15 @@ def upload_file():
 
             risk_score, security_grade = calculate_risk(findings)
 
+            severity_counts = calculate_severity_counts(findings)
+
             return render_template(
                 "index.html",
                 resources=data,
                 findings=findings,
                 risk_score=risk_score,
-                security_grade=security_grade
+                security_grade=security_grade,
+                severity_counts=severity_counts
             )
 
         except Exception as e:

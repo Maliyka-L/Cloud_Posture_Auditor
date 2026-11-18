@@ -58,6 +58,38 @@
 
         </section>
 
+        {% if findings %}
+
+        <section class="summary-cards">
+
+            <div class="card">
+                <h2>High Severity</h2>
+
+                <p style="color:#ef4444;">
+                    {{ severity_counts.high }}
+                </p>
+            </div>
+
+            <div class="card">
+                <h2>Medium Severity</h2>
+
+                <p style="color:#f59e0b;">
+                    {{ severity_counts.medium }}
+                </p>
+            </div>
+
+            <div class="card">
+                <h2>Low Severity</h2>
+
+                <p style="color:#22c55e;">
+                    {{ severity_counts.low }}
+                </p>
+            </div>
+
+        </section>
+
+        {% endif %}
+
         <section class="upload-area">
 
             <h2>Upload Azure Snapshot</h2>
@@ -78,9 +110,9 @@
             </form>
 
             {% if error %}
-                <p style="color:red; margin-top:15px;">
-                    {{ error }}
-                </p>
+            <p style="color:red; margin-top:15px;">
+                {{ error }}
+            </p>
             {% endif %}
 
         </section>
