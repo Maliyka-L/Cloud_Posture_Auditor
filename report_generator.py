@@ -21,3 +21,16 @@ def generate_report(findings, risk_score, security_grade):
         report.append("")
 
     return "\n".join(report)
+
+
+
+
+
+
+
+
+
+
+
+
+
