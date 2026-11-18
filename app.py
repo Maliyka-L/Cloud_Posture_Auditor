@@ -1,5 +1,7 @@
 import json
 
+from datetime import datetime
+
 from flask import (
     Flask,
     render_template,
@@ -41,13 +43,9 @@ def upload_file():
 
             findings = run_audit(data)
 
-            risk_score, security_grade = calculate_risk(
-                findings
-            )
+            risk_score, security_grade = calculate_risk(findings)
 
-            severity_counts = calculate_severity_counts(
-                findings
-            )
+            severity_counts = calculate_severity_counts(findings)
 
             latest_findings = findings
             latest_score = risk_score
@@ -59,7 +57,8 @@ def upload_file():
                 findings=findings,
                 risk_score=risk_score,
                 security_grade=security_grade,
-                severity_counts=severity_counts
+                severity_counts=severity_counts,
+                scan_time=datetime.now().strftime("%d/%m/%Y %H:%M:%S")
             )
 
         except Exception as e:

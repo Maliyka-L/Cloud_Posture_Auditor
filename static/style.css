@@ -102,3 +102,51 @@ main {
 .finding-card p {
     margin-bottom: 0.4rem;
 }
+
+.grade-a {
+    color: #22c55e;
+}
+
+.grade-b {
+    color: #84cc16;
+}
+
+.grade-c {
+    color: #eab308;
+}
+
+.grade-d {
+    color: #f97316;
+}
+
+.grade-f {
+    color: #ef4444;
+}
+
+.severity-high {
+    color: #ef4444;
+    font-weight: bold;
+}
+
+.severity-medium {
+    color: #f59e0b;
+    font-weight: bold;
+}
+
+.severity-low {
+    color: #22c55e;
+    font-weight: bold;
+}
+
+.finding-card {
+    background: #111827;
+    border-left: 5px solid #3b82f6;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+}
+
+.finding-card:hover {
+    transform: translateY(-3px);
+}

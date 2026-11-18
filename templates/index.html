@@ -16,6 +16,8 @@
 
     <main>
 
+        <!-- Main Dashboard Cards -->
+
         <section class="summary-cards">
 
             <div class="card">
@@ -51,42 +53,105 @@
             <div class="card">
                 <h2>Security Grade</h2>
 
-                <p>
+                <p class="
+                {% if security_grade == 'A' %}
+                    grade-a
+                {% elif security_grade == 'B' %}
+                    grade-b
+                {% elif security_grade == 'C' %}
+                    grade-c
+                {% elif security_grade == 'D' %}
+                    grade-d
+                {% elif security_grade == 'F' %}
+                    grade-f
+                {% endif %}
+                ">
                     {{ security_grade if security_grade else "N/A" }}
                 </p>
+
             </div>
 
         </section>
+
+        <!-- Severity Analytics -->
 
         {% if findings %}
 
         <section class="summary-cards">
 
             <div class="card">
+
                 <h2>High Severity</h2>
 
                 <p style="color:#ef4444;">
                     {{ severity_counts.high }}
                 </p>
+
             </div>
 
             <div class="card">
+
                 <h2>Medium Severity</h2>
 
                 <p style="color:#f59e0b;">
                     {{ severity_counts.medium }}
                 </p>
+
             </div>
 
             <div class="card">
+
                 <h2>Low Severity</h2>
 
                 <p style="color:#22c55e;">
                     {{ severity_counts.low }}
                 </p>
+
             </div>
 
         </section>
+
+        {% endif %}
+
+        <!-- Executive Summary -->
+
+        {% if findings %}
+
+        <section class="upload-area">
+
+            <h2>Executive Summary</h2>
+
+            <p>
+                AzureGuard analyzed
+                {{ findings|length }}
+                security findings across
+
+                {{
+                resources.storage_accounts|length +
+                resources.network_security_groups|length +
+                resources.users|length
+                }}
+
+                resources.
+            </p>
+
+            <p>
+                Overall Security Grade:
+                <strong>{{ security_grade }}</strong>
+            </p>
+
+            <p>
+                Scan Time:
+                {{ scan_time }}
+            </p>
+
+        </section>
+
+        {% endif %}
+
+        <!-- Download Report -->
+
+        {% if findings %}
 
         <section class="upload-area">
 
@@ -103,6 +168,8 @@
         </section>
 
         {% endif %}
+
+        <!-- Upload Snapshot -->
 
         <section class="upload-area">
 
@@ -124,12 +191,16 @@
             </form>
 
             {% if error %}
+
             <p style="color:red; margin-top:15px;">
                 {{ error }}
             </p>
+
             {% endif %}
 
         </section>
+
+        <!-- Uploaded Resources -->
 
         {% if resources %}
 
@@ -145,6 +216,8 @@
 
         {% endif %}
 
+        <!-- Findings -->
+
         {% if findings %}
 
         <section class="findings">
@@ -158,18 +231,29 @@
                 <h3>{{ finding.title }}</h3>
 
                 <p>
+
                     <strong>Severity:</strong>
-                    {{ finding.severity }}
+
+                    <span class="severity-{{ finding.severity|lower }}">
+                        {{ finding.severity }}
+                    </span>
+
                 </p>
 
                 <p>
+
                     <strong>Resource:</strong>
+
                     {{ finding.resource }}
+
                 </p>
 
                 <p>
+
                     <strong>Recommendation:</strong>
+
                     {{ finding.recommendation }}
+
                 </p>
 
             </div>
