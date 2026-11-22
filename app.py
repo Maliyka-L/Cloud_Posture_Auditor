@@ -1,4 +1,6 @@
 import json
+from azure_integration.auth import get_credential
+from azure_integration.snapshot_builder import build_snapshot
 
 from datetime import datetime
 
@@ -92,6 +94,54 @@ def download_report():
         }
     )
 
+@app.route("/audit-live")
+def audit_live():
+
+    try:
+
+        # Authenticate to Azure
+        credential = get_credential()
+
+        # Build Azure snapshot
+        snapshot = build_snapshot(
+            credential
+        )
+
+        # Run existing audit engine
+        findings = run_audit(
+            snapshot
+        )
+
+        # Calculate risk score
+        risk_score, security_grade = (
+            calculate_risk(findings)
+        )
+
+        # Calculate severity counts
+        severity_counts = (
+            calculate_severity_counts(
+                findings
+            )
+        )
+
+        return render_template(
+            "index.html",
+            resources=snapshot,
+            findings=findings,
+            risk_score=risk_score,
+            security_grade=security_grade,
+            severity_counts=severity_counts,
+            scan_time=datetime.now().strftime(
+                "%d/%m/%Y %H:%M:%S"
+            )
+        )
+
+    except Exception as error:
+
+        return render_template(
+            "index.html",
+            error=str(error)
+        )
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,4 +1,4 @@
-from collector import (
+from azure_integration.collector import (
     get_resource_groups,
     get_resources,
     get_storage_accounts,
