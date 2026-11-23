@@ -1,4 +1,6 @@
+from importlib import resources
 import json
+import traceback
 from azure_integration.auth import get_credential
 from azure_integration.snapshot_builder import build_snapshot
 
@@ -45,13 +47,33 @@ def upload_file():
 
             findings = run_audit(data)
 
-            risk_score, security_grade = calculate_risk(findings)
+            risk_score, security_grade = calculate_risk(
+                findings
+            )
 
-            severity_counts = calculate_severity_counts(findings)
+            severity_counts = calculate_severity_counts(
+                findings
+            )
 
             latest_findings = findings
             latest_score = risk_score
             latest_grade = security_grade
+
+            # Azure overview statistics
+            azure_summary = {
+
+                "resource_groups":
+                    len(data.get("resource_groups", [])),
+
+                "storage_accounts":
+                    len(data.get("storage_accounts", [])),
+
+                "resources":
+                    len(data.get("resources", [])),
+
+                "role_assignments":
+                    len(data.get("role_assignments", []))
+            }
 
             return render_template(
                 "index.html",
@@ -60,7 +82,10 @@ def upload_file():
                 risk_score=risk_score,
                 security_grade=security_grade,
                 severity_counts=severity_counts,
-                scan_time=datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                azure_summary=azure_summary,
+                scan_time=datetime.now().strftime(
+                    "%d/%m/%Y %H:%M:%S"
+                )
             )
 
         except Exception as e:
@@ -107,7 +132,7 @@ def audit_live():
             credential
         )
 
-        # Run existing audit engine
+        # Run audit engine
         findings = run_audit(
             snapshot
         )
@@ -117,12 +142,29 @@ def audit_live():
             calculate_risk(findings)
         )
 
-        # Calculate severity counts
+        # Calculate severity metrics
         severity_counts = (
             calculate_severity_counts(
                 findings
             )
         )
+
+        # Azure overview statistics
+        azure_summary = {
+
+            "resource_groups":
+                len(snapshot.get("resource_groups", [])),
+
+            "storage_accounts":
+                len(snapshot.get("storage_accounts", [])),
+
+            "resources":
+                len(snapshot.get("resources", [])),
+
+            "role_assignments":
+                len(snapshot.get("role_assignments", []))
+        }
+
 
         return render_template(
             "index.html",
@@ -131,17 +173,15 @@ def audit_live():
             risk_score=risk_score,
             security_grade=security_grade,
             severity_counts=severity_counts,
+            azure_summary=azure_summary,
             scan_time=datetime.now().strftime(
                 "%d/%m/%Y %H:%M:%S"
             )
         )
 
     except Exception as error:
-
-        return render_template(
-            "index.html",
-            error=str(error)
-        )
+        import traceback
+        return f"<pre>{traceback.format_exc()}</pre>"
 
 if __name__ == "__main__":
     app.run(debug=True)
