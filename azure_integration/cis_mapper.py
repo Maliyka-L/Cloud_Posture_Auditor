@@ -1,3 +1,4 @@
+# Map findings to CIS Azure controls
 FRAMEWORK = "CIS Microsoft Azure Foundations Benchmark"
 
 CIS_MAPPINGS = {

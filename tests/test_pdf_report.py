@@ -1,11 +1,13 @@
 from pdf_report import generate_pdf_report
 
 
+# PDF with no findings
 def test_pdf_with_no_findings():
     pdf = generate_pdf_report([], 0, "A")
     assert pdf.startswith(b"%PDF")
 
 
+# PDF with findings
 def test_pdf_with_findings():
     findings = [{
         "severity": "HIGH",

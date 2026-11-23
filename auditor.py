@@ -1,9 +1,11 @@
 from azure_integration.rbac_auditor import analyze_roles, MAX_OWNERS
 from azure_integration.cis_mapper import get_cis_mapping
 
+# TLS versions that are no longer secure
 WEAK_TLS_VERSIONS = ("TLS1_0", "TLS1_1")
 
 
+# Storage Checks
 def check_storage(snapshot):
 
     findings = []
@@ -12,6 +14,7 @@ def check_storage(snapshot):
 
         name = storage.get("name", "Unknown storage account")
 
+        # Public blob access
         if storage.get("public_access"):
             findings.append({
                 "severity": "HIGH",
@@ -20,6 +23,7 @@ def check_storage(snapshot):
                 "recommendation": "Disable public blob access."
             })
 
+        # Encryption disabled
         if not storage.get("encrypted", True):
             findings.append({
                 "severity": "MEDIUM",
@@ -28,6 +32,7 @@ def check_storage(snapshot):
                 "recommendation": "Enable encryption."
             })
 
+        # HTTPS not required
         if storage.get("https_only") is False:
             findings.append({
                 "severity": "MEDIUM",
@@ -36,6 +41,7 @@ def check_storage(snapshot):
                 "recommendation": "Enable 'Secure transfer required' (HTTPS only)."
             })
 
+        # Outdated TLS version
         if storage.get("minimum_tls_version") in WEAK_TLS_VERSIONS:
             findings.append({
                 "severity": "MEDIUM",
@@ -47,6 +53,7 @@ def check_storage(snapshot):
     return findings
 
 
+# Network Checks
 def check_network(snapshot):
 
     findings = []
@@ -55,6 +62,7 @@ def check_network(snapshot):
 
         name = nsg.get("name", "Unknown NSG")
 
+        # RDP open to the internet
         if nsg.get("open_rdp"):
             findings.append({
                 "severity": "HIGH",
@@ -63,6 +71,7 @@ def check_network(snapshot):
                 "recommendation": "Restrict RDP (3389) access."
             })
 
+        # SSH open to the internet
         if nsg.get("open_ssh"):
             findings.append({
                 "severity": "HIGH",
@@ -74,6 +83,7 @@ def check_network(snapshot):
     return findings
 
 
+# IAM Checks (users from uploaded snapshots)
 def check_users(snapshot):
 
     findings = []
@@ -84,11 +94,13 @@ def check_users(snapshot):
 
         name = user.get("name", "Unknown user")
 
+        # Only Owners are checked
         if user.get("role") != "Owner":
             continue
 
         owner_count += 1
 
+        # Guest with Owner access
         if user.get("guest"):
             findings.append({
                 "severity": "HIGH",
@@ -104,6 +116,7 @@ def check_users(snapshot):
                 "recommendation": "Review Owner permissions."
             })
 
+    # Check for too many Owners
     if owner_count > MAX_OWNERS:
         findings.append({
             "severity": "MEDIUM",
@@ -116,6 +129,7 @@ def check_users(snapshot):
     return findings
 
 
+# Run every check on a snapshot
 def run_audit(snapshot):
 
     findings = []
@@ -125,6 +139,7 @@ def run_audit(snapshot):
     findings += check_users(snapshot)
     findings += analyze_roles(snapshot.get("role_assignments", []))
 
+    # Add the CIS mapping to each finding
     for finding in findings:
         finding["cis"] = get_cis_mapping(finding["title"])
 

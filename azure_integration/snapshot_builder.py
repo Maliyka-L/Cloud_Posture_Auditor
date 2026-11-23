@@ -11,10 +11,13 @@ from azure_integration.guest_checker import mark_guest_users
 # Build complete Azure snapshot
 def build_snapshot(credential):
 
+    # Collect role assignments
     role_assignments = get_role_assignments(credential)
 
+    # Check role assignments for guest users
     guest_check = mark_guest_users(credential, role_assignments)
 
+    # Collect everything into one snapshot
     snapshot = {
         "resource_groups": get_resource_groups(credential),
         "resources": get_resources(credential),

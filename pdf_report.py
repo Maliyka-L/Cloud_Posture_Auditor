@@ -15,16 +15,19 @@ from reportlab.platypus import (
 
 from analytics import calculate_severity_counts
 
+# Report colours
 DARK = colors.HexColor("#111827")
 GREY = colors.HexColor("#6b7280")
 LIGHT = colors.HexColor("#f3f4f6")
 
+# Severity colours
 SEVERITY_COLOURS = {
     "HIGH": colors.HexColor("#dc2626"),
     "MEDIUM": colors.HexColor("#d97706"),
     "LOW": colors.HexColor("#16a34a")
 }
 
+# Grade colours
 GRADE_COLOURS = {
     "A": colors.HexColor("#16a34a"),
     "B": colors.HexColor("#65a30d"),
@@ -34,6 +37,7 @@ GRADE_COLOURS = {
 }
 
 
+# Text styles for the report
 def build_styles():
 
     styles = getSampleStyleSheet()
@@ -66,6 +70,7 @@ def build_styles():
     }
 
 
+# Summary table with grade, score and severity counts
 def summary_table(findings, risk_score, security_grade):
 
     counts = calculate_severity_counts(findings)
@@ -84,6 +89,7 @@ def summary_table(findings, risk_score, security_grade):
 
     table = Table(data, colWidths=[30 * mm] * 6)
 
+    # Table styling
     table.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, 0), DARK),
         ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
@@ -106,6 +112,7 @@ def summary_table(findings, risk_score, security_grade):
     return table
 
 
+# Box for a single finding
 def finding_block(finding, styles):
 
     severity = finding.get("severity", "")
@@ -124,6 +131,7 @@ def finding_block(finding, styles):
         )]
     ]
 
+    # Add the CIS benchmark if mapped
     cis = finding.get("cis")
 
     if cis and cis["framework"] != "Not Mapped":
@@ -145,6 +153,7 @@ def finding_block(finding, styles):
     return KeepTogether([table, Spacer(1, 6)])
 
 
+# Footer with page number
 def add_page_number(canvas, doc):
 
     canvas.saveState()
@@ -155,6 +164,7 @@ def add_page_number(canvas, doc):
     canvas.restoreState()
 
 
+# Build the PDF audit report
 def generate_pdf_report(findings, risk_score, security_grade,
                         scan_time="", source=""):
 
@@ -172,11 +182,13 @@ def generate_pdf_report(findings, risk_score, security_grade,
 
     styles = build_styles()
 
+    # Readable label for the scan source
     source_label = {
         "live": "Live Azure scan",
         "upload": "Uploaded snapshot"
     }.get(source, "Not specified")
 
+    # Report title and summary
     story = [
         Paragraph("AzureGuard Security Audit Report", styles["title"]),
         Paragraph(
@@ -191,11 +203,13 @@ def generate_pdf_report(findings, risk_score, security_grade,
     if not findings:
         story.append(Paragraph("No security findings detected.", styles["body"]))
 
+    # Sort findings from High to Low
     order = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
 
     for finding in sorted(findings, key=lambda f: order.get(f["severity"], 3)):
         story.append(finding_block(finding, styles))
 
+    # Create the PDF
     doc.build(
         story,
         onFirstPage=add_page_number,

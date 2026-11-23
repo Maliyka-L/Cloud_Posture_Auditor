@@ -1,3 +1,4 @@
+# Most Owners a subscription should have
 MAX_OWNERS = 3
 
 
@@ -8,6 +9,7 @@ def analyze_roles(roles):
 
     owner_count = 0
 
+    # Review all collected roles
     for role in roles:
 
         role_name = role.get("role_name", "Unknown Role")
@@ -18,9 +20,11 @@ def analyze_roles(roles):
         )
         guest = role.get("is_guest", False)
 
+        # Count Owners
         if role_name == "Owner":
             owner_count += 1
 
+        # Guest with Owner access
         if guest and role_name == "Owner":
 
             findings.append({
@@ -31,6 +35,7 @@ def analyze_roles(roles):
                     "Remove Owner access from external guest accounts."
             })
 
+        # Guest with any other role
         elif guest:
 
             findings.append({
@@ -41,6 +46,7 @@ def analyze_roles(roles):
                     f"Check this guest still needs the {role_name} role."
             })
 
+        # Owner accounts are highly privileged
         if role_name == "Owner" and not guest:
 
             findings.append({
@@ -52,6 +58,7 @@ def analyze_roles(roles):
                     "account needs Owner or a lower role."
             })
 
+        # User Access Administrator can grant permissions
         elif role_name == "User Access Administrator" and not guest:
 
             findings.append({
@@ -63,6 +70,7 @@ def analyze_roles(roles):
                     "Limit it to accounts that need it."
             })
 
+    # Check for too many Owners
     if owner_count > MAX_OWNERS:
 
         findings.append({

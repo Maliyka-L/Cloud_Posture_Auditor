@@ -1,7 +1,9 @@
+# Calculate risk score and grade from findings
 def calculate_risk(findings):
 
     score = 0
 
+    # Add points for each finding by severity
     for finding in findings:
 
         if finding["severity"] == "HIGH":
@@ -13,6 +15,7 @@ def calculate_risk(findings):
         elif finding["severity"] == "LOW":
             score += 1
 
+    # Convert score into a grade
     if score >= 25:
         grade = "F"
     elif score >= 20:

@@ -5,15 +5,18 @@ from azure_integration.guest_checker import is_guest, mark_guest_users
 from azure_integration.rbac_auditor import analyze_roles
 
 
+# Fake Azure token
 class FakeToken:
     token = "fake-token"
 
 
+# Fake Azure credential
 class FakeCredential:
     def get_token(self, scope):
         return FakeToken()
 
 
+# Fake Microsoft Graph response
 class FakeResponse:
     def __init__(self, status_code, data=None):
         self.status_code = status_code
@@ -28,16 +31,19 @@ class FakeResponse:
             raise requests.HTTPError(self.status_code)
 
 
+# Get finding titles
 def titles(findings):
     return [finding["title"] for finding in findings]
 
 
+# Guest detection by user type and #EXT# name
 def test_is_guest():
     assert is_guest({"userType": "Guest"})
     assert is_guest({"userPrincipalName": "jo_gmail.com#EXT#@uni.onmicrosoft.com"})
     assert not is_guest({"userType": "Member", "userPrincipalName": "me@uni.ac.uk"})
 
 
+# Guests and members are marked correctly
 def test_guests_marked(monkeypatch):
     users = {
         "guest-id": {"displayName": "External Jo", "userType": "Guest"},
@@ -61,6 +67,7 @@ def test_guests_marked(monkeypatch):
     assert "is_guest" not in roles[2]
 
 
+# No permission skips the check
 def test_skipped_without_permission(monkeypatch):
     monkeypatch.setattr(
         guest_checker.requests, "get",
@@ -73,6 +80,7 @@ def test_skipped_without_permission(monkeypatch):
     assert "is_guest" not in roles[0]
 
 
+# Guest Owner is HIGH
 def test_guest_owner_finding():
     roles = [{"principal_id": "x", "display_name": "External Jo",
               "role_name": "Owner", "is_guest": True}]
@@ -82,12 +90,14 @@ def test_guest_owner_finding():
     assert findings[0]["resource"] == "External Jo"
 
 
+# Guest with other roles is MEDIUM
 def test_guest_reader_finding():
     roles = [{"principal_id": "x", "role_name": "Reader", "is_guest": True}]
 
     assert titles(analyze_roles(roles)) == ["Guest User With Azure Access"]
 
 
+# Member Owner is still a Privileged Owner
 def test_member_owner_unchanged():
     roles = [{"principal_id": "x", "role_name": "Owner", "is_guest": False}]
 

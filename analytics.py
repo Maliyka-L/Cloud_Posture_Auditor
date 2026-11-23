@@ -1,3 +1,4 @@
+# Count findings by severity
 def calculate_severity_counts(findings):
 
     high = 0
