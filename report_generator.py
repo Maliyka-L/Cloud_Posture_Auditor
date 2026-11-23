@@ -26,7 +26,7 @@ def generate_report(findings, risk_score, security_grade):
         cis = finding.get("cis")
 
         if cis and cis["framework"] != "Not Mapped":
-            report.append(f"CIS: {cis['framework']} - {cis['control']}")
+            report.append(f"Benchmark: {cis['framework']} - {cis['control']}")
 
         report.append("")
 

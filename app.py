@@ -15,6 +15,7 @@ from auditor import run_audit
 from scoring import calculate_risk
 from analytics import calculate_severity_counts
 from report_generator import generate_report
+from pdf_report import generate_pdf_report
 
 load_dotenv()
 
@@ -23,6 +24,8 @@ app = Flask(__name__)
 latest_findings = []
 latest_score = 0
 latest_grade = "N/A"
+latest_scan_time = ""
+latest_source = ""
 
 
 def build_dashboard(snapshot, source):
@@ -30,6 +33,8 @@ def build_dashboard(snapshot, source):
     global latest_findings
     global latest_score
     global latest_grade
+    global latest_scan_time
+    global latest_source
 
     findings = run_audit(snapshot)
 
@@ -40,6 +45,8 @@ def build_dashboard(snapshot, source):
     latest_findings = findings
     latest_score = risk_score
     latest_grade = security_grade
+    latest_scan_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    latest_source = source
 
     azure_summary = {
         "resource_groups": len(snapshot.get("resource_groups", [])),
@@ -67,7 +74,7 @@ def build_dashboard(snapshot, source):
         severity_counts=severity_counts,
         azure_summary=azure_summary,
         resources_scanned=resources_scanned,
-        scan_time=datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        scan_time=latest_scan_time
     )
 
 
@@ -138,6 +145,27 @@ def download_report():
         headers={
             "Content-Disposition":
             "attachment; filename=azureguard_report.txt"
+        }
+    )
+
+
+@app.route("/download-pdf")
+def download_pdf():
+
+    pdf = generate_pdf_report(
+        latest_findings,
+        latest_score,
+        latest_grade,
+        scan_time=latest_scan_time,
+        source=latest_source
+    )
+
+    return Response(
+        pdf,
+        mimetype="application/pdf",
+        headers={
+            "Content-Disposition":
+            "attachment; filename=azureguard_report.pdf"
         }
     )
 

@@ -17,7 +17,7 @@ A Python and Flask web app that audits a Microsoft Azure subscription for common
 - **CIS mapping:** every finding is linked to its area of the CIS Microsoft Azure Foundations Benchmark
 - **Risk scoring:** weighted score (High 5, Medium 3, Low 1) converted to a grade from A to F
 - **Dashboard:** severity counts, executive summary, subscription overview and finding cards with recommendations
-- **Report export:** download the findings as a plain-text audit report
+- **Report export:** download the findings as a formatted PDF report (grade, severity summary and colour-coded findings) or as plain text
 - **Automated tests:** pytest tests for the audit engine, scoring and web app, using the sample snapshot (no Azure account needed)
 
 ## Tech stack
@@ -27,6 +27,7 @@ A Python and Flask web app that audits a Microsoft Azure subscription for common
 | Backend | Python, Flask |
 | Cloud | Azure SDK for Python (`azure-identity`, `azure-mgmt-resource`, `azure-mgmt-storage`, `azure-mgmt-authorization`, `azure-mgmt-network`) |
 | Frontend | HTML, Jinja2, CSS |
+| Reporting | ReportLab (PDF) |
 | Testing | pytest |
 | Cloud account | Azure for Students |
 
@@ -39,6 +40,7 @@ Cloud_Posture_Auditor/
 ├── scoring.py              # Risk score and grade
 ├── analytics.py            # Severity counts
 ├── report_generator.py     # Text report
+├── pdf_report.py           # PDF report
 ├── azure_integration/
 │   ├── auth.py             # Azure sign-in
 │   ├── collector.py        # Resource groups, resources, storage, roles, NSGs
@@ -137,6 +139,12 @@ pytest
 |---|---|
 | ![Overview](screenshots/commit18-azure-security-overview.png) | ![Report](screenshots/commit6-report-generation.png) |
 
+### Example PDF report
+
+[View the example PDF report](sample_reports/azureguard_sample_report.pdf), generated from `sample_data/azure_snapshot.json`.
+
+![PDF report](screenshots/commit20-pdf-report.png)
+
 ## Roadmap
 
 - [x] Collect storage security settings (public blob access, HTTPS only, minimum TLS) in live scans
@@ -144,8 +152,8 @@ pytest
 - [x] Move the subscription ID into a `.env` file
 - [x] Automated pytest tests using the sample snapshot
 - [x] Collect network security group rules from Azure
-- [ ] Identify guest users in live scans
-- [ ] PDF report export
+- [x] PDF report export
+- [ ] Identify guest users via Microsoft Graph (needs Entra ID directory permissions)
 
 ## Part of my portfolio
 

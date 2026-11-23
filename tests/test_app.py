@@ -52,3 +52,18 @@ def test_download_report():
 
     response = test_client.get("/download-report")
     assert b"AZUREGUARD SECURITY AUDIT REPORT" in response.data
+
+
+def test_download_pdf_report():
+    test_client = client()
+
+    with open(SAMPLE, "rb") as file:
+        test_client.post(
+            "/upload",
+            data={"snapshot": (file, "azure_snapshot.json")},
+            content_type="multipart/form-data"
+        )
+
+    response = test_client.get("/download-pdf")
+    assert response.mimetype == "application/pdf"
+    assert response.data.startswith(b"%PDF")

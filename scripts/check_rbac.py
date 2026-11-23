@@ -20,5 +20,5 @@ for finding in findings:
     print(f"[{finding['severity']}] {finding['title']}")
     print(f"Resource: {finding['resource']}")
     print(finding["recommendation"])
-    print(f"CIS: {cis['framework']} - {cis['control']}")
+    print(f"Benchmark: {cis['framework']} - {cis['control']}")
     print("-" * 50)
