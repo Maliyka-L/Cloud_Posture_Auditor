@@ -2,7 +2,7 @@
 
 A Python and Flask web app that audits a Microsoft Azure subscription for common security misconfigurations, maps findings to the CIS Microsoft Azure Foundations Benchmark, scores the overall risk, and produces a downloadable audit report.
 
-> **Status:** In progress. Built step by step on the `feature/azure-integration` branch and merged through pull requests.
+> **Status:** Core features complete, with extra features planned in the Roadmap below. Built step by step on the `feature/azure-integration` branch and merged through pull requests.
 
 ![Dashboard](screenshots/commit7-ui-polish.png)
 
@@ -12,7 +12,7 @@ A Python and Flask web app that audits a Microsoft Azure subscription for common
   - **Live Azure scan:** sign in through the browser and collect data straight from your subscription with the Azure SDK
   - **Snapshot upload:** upload a JSON snapshot of an environment (sample included)
 - **Storage checks:** public blob access, encryption disabled, secure transfer (HTTPS) not required, outdated TLS version
-- **Network checks:** open RDP (3389) and SSH (22) on network security groups (snapshot upload)
+- **Network checks:** reads every network security group rule and flags RDP (3389) or SSH (22) open to the internet, including port ranges, `*` and the `Internet` service tag
 - **RBAC analysis:** converts Azure role IDs into readable role names and flags Owner, guest Owner and User Access Administrator assignments, plus more than 3 subscription Owners
 - **CIS mapping:** every finding is linked to its area of the CIS Microsoft Azure Foundations Benchmark
 - **Risk scoring:** weighted score (High 5, Medium 3, Low 1) converted to a grade from A to F
@@ -25,7 +25,7 @@ A Python and Flask web app that audits a Microsoft Azure subscription for common
 | Area | Tools |
 |------|-------|
 | Backend | Python, Flask |
-| Cloud | Azure SDK for Python (`azure-identity`, `azure-mgmt-resource`, `azure-mgmt-storage`, `azure-mgmt-authorization`) |
+| Cloud | Azure SDK for Python (`azure-identity`, `azure-mgmt-resource`, `azure-mgmt-storage`, `azure-mgmt-authorization`, `azure-mgmt-network`) |
 | Frontend | HTML, Jinja2, CSS |
 | Testing | pytest |
 | Cloud account | Azure for Students |
@@ -41,9 +41,10 @@ Cloud_Posture_Auditor/
 ├── report_generator.py     # Text report
 ├── azure_integration/
 │   ├── auth.py             # Azure sign-in
-│   ├── collector.py        # Resource groups, resources, storage, role assignments
+│   ├── collector.py        # Resource groups, resources, storage, roles, NSGs
 │   ├── snapshot_builder.py # Builds the live snapshot
 │   ├── role_mapper.py      # Role ID to role name
+│   ├── nsg_rules.py        # Checks NSG rules for ports open to the internet
 │   ├── rbac_auditor.py     # RBAC findings
 │   └── cis_mapper.py       # CIS benchmark mapping
 ├── scripts/                # Command-line checks against a live subscription
@@ -111,6 +112,7 @@ The `scripts` folder has small scripts for checking each part of the live collec
 ```bash
 python -m scripts.check_connection
 python -m scripts.check_storage_accounts
+python -m scripts.check_network_security_groups
 python -m scripts.check_rbac
 python -m scripts.check_audit
 ```
@@ -141,7 +143,7 @@ pytest
 - [x] Show RBAC and CIS findings on the live dashboard
 - [x] Move the subscription ID into a `.env` file
 - [x] Automated pytest tests using the sample snapshot
-- [ ] Collect network security group rules from Azure
+- [x] Collect network security group rules from Azure
 - [ ] Identify guest users in live scans
 - [ ] PDF report export
 
