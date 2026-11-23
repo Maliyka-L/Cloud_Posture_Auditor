@@ -4,8 +4,10 @@ from dotenv import load_dotenv
 from azure.mgmt.resource.resources import ResourceManagementClient
 from azure.mgmt.storage import StorageManagementClient
 from azure.mgmt.authorization import AuthorizationManagementClient
+from azure.mgmt.network import NetworkManagementClient
 
 from azure_integration.role_mapper import get_role_name
+from azure_integration.nsg_rules import analyze_nsg
 
 load_dotenv()
 
@@ -107,3 +109,37 @@ def get_role_assignments(credential):
         })
 
     return roles
+
+
+# Collect Network Security Groups and check their inbound rules
+def get_network_security_groups(credential):
+
+    client = NetworkManagementClient(
+        credential,
+        get_subscription_id()
+    )
+
+    nsgs = []
+
+    for nsg in client.network_security_groups.list_all():
+
+        rules = []
+
+        for rule in nsg.security_rules or []:
+
+            rules.append({
+                "name": rule.name,
+                "direction": rule.direction,
+                "access": rule.access,
+                "source_address_prefix": rule.source_address_prefix,
+                "source_address_prefixes": rule.source_address_prefixes,
+                "destination_port_range": rule.destination_port_range,
+                "destination_port_ranges": rule.destination_port_ranges
+            })
+
+        result = analyze_nsg(nsg.name, rules)
+        result["location"] = nsg.location
+
+        nsgs.append(result)
+
+    return nsgs
