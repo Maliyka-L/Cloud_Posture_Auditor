@@ -214,19 +214,40 @@
 
         <!-- Uploaded Resources -->
 
-        {% if resources %}
+        {% if azure_summary %}
 
-        <section class="findings">
+<section class="upload-area">
 
-            <h2>Uploaded Resources</h2>
+    <h2>Azure Subscription Overview</h2>
 
-            <pre>
-{{ resources | tojson(indent=4) }}
-            </pre>
+    <p>
+        <strong>Resource Groups:</strong>
+        {{ azure_summary.resource_groups }}
+    </p>
 
-        </section>
+    <p>
+        <strong>Storage Accounts:</strong>
+        {{ azure_summary.storage_accounts }}
+    </p>
 
-        {% endif %}
+    <p>
+        <strong>Resources:</strong>
+        {{ azure_summary.resources }}
+    </p>
+
+    <p>
+        <strong>Role Assignments:</strong>
+        {{ azure_summary.role_assignments }}
+    </p>
+
+    <p style="color:#22c55e;">
+        <strong>Azure Status:</strong>
+        Connected
+    </p>
+
+</section>
+
+{% endif %}
 
         <!-- Findings -->
 
