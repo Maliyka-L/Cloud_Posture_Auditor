@@ -45,7 +45,9 @@ def build_dashboard(snapshot, source):
         "resource_groups": len(snapshot.get("resource_groups", [])),
         "storage_accounts": len(snapshot.get("storage_accounts", [])),
         "resources": len(snapshot.get("resources", [])),
-        "role_assignments": len(snapshot.get("role_assignments", []))
+        "role_assignments": len(snapshot.get("role_assignments", [])),
+        "network_security_groups":
+            len(snapshot.get("network_security_groups", []))
     }
 
     resources_scanned = (
