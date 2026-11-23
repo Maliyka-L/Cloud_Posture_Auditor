@@ -3,7 +3,9 @@
         {
             "name": "storage001",
             "public_access": true,
-            "encrypted": false
+            "encrypted": false,
+            "https_only": false,
+            "minimum_tls_version": "TLS1_0"
         }
     ],
 
@@ -25,6 +27,13 @@
             "name": "external-consultant",
             "role": "Owner",
             "guest": true
+        }
+    ],
+
+    "role_assignments": [
+        {
+            "role_name": "User Access Administrator",
+            "principal_id": "helpdesk-lead"
         }
     ]
 }

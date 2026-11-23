@@ -1,11 +1,9 @@
-from importlib import resources
 import json
+import os
 import traceback
-from azure_integration.auth import get_credential
-from azure_integration.snapshot_builder import build_snapshot
-
 from datetime import datetime
 
+from dotenv import load_dotenv
 from flask import (
     Flask,
     render_template,
@@ -18,11 +16,57 @@ from scoring import calculate_risk
 from analytics import calculate_severity_counts
 from report_generator import generate_report
 
+load_dotenv()
+
 app = Flask(__name__)
 
 latest_findings = []
 latest_score = 0
 latest_grade = "N/A"
+
+
+def build_dashboard(snapshot, source):
+
+    global latest_findings
+    global latest_score
+    global latest_grade
+
+    findings = run_audit(snapshot)
+
+    risk_score, security_grade = calculate_risk(findings)
+
+    severity_counts = calculate_severity_counts(findings)
+
+    latest_findings = findings
+    latest_score = risk_score
+    latest_grade = security_grade
+
+    azure_summary = {
+        "resource_groups": len(snapshot.get("resource_groups", [])),
+        "storage_accounts": len(snapshot.get("storage_accounts", [])),
+        "resources": len(snapshot.get("resources", [])),
+        "role_assignments": len(snapshot.get("role_assignments", []))
+    }
+
+    resources_scanned = (
+        len(snapshot.get("storage_accounts", []))
+        + len(snapshot.get("network_security_groups", []))
+        + len(snapshot.get("users", []))
+        + len(snapshot.get("role_assignments", []))
+    )
+
+    return render_template(
+        "index.html",
+        scanned=True,
+        source=source,
+        findings=findings,
+        risk_score=risk_score,
+        security_grade=security_grade,
+        severity_counts=severity_counts,
+        azure_summary=azure_summary,
+        resources_scanned=resources_scanned,
+        scan_time=datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    )
 
 
 @app.route("/")
@@ -33,72 +77,48 @@ def dashboard():
 @app.route("/upload", methods=["POST"])
 def upload_file():
 
-    global latest_findings
-    global latest_score
-    global latest_grade
-
     uploaded_file = request.files.get("snapshot")
 
-    if uploaded_file:
+    if not uploaded_file:
+        return render_template("index.html", error="No file uploaded.")
 
-        try:
+    try:
+        data = json.load(uploaded_file)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return render_template(
+            "index.html",
+            error="That file is not valid JSON."
+        )
 
-            data = json.load(uploaded_file)
+    if not isinstance(data, dict):
+        return render_template(
+            "index.html",
+            error="The snapshot must be a JSON object."
+        )
 
-            findings = run_audit(data)
+    return build_dashboard(data, source="upload")
 
-            risk_score, security_grade = calculate_risk(
-                findings
-            )
 
-            severity_counts = calculate_severity_counts(
-                findings
-            )
+@app.route("/audit-live")
+def audit_live():
 
-            latest_findings = findings
-            latest_score = risk_score
-            latest_grade = security_grade
+    try:
+        from azure_integration.auth import get_credential
+        from azure_integration.snapshot_builder import build_snapshot
 
-            # Azure overview statistics
-            azure_summary = {
+        credential = get_credential()
+        snapshot = build_snapshot(credential)
 
-                "resource_groups":
-                    len(data.get("resource_groups", [])),
+    except Exception:
+        traceback.print_exc()
+        return render_template(
+            "index.html",
+            error="Could not connect to Azure. "
+                  "Check your sign-in and AZURE_SUBSCRIPTION_ID, "
+                  "then try again."
+        )
 
-                "storage_accounts":
-                    len(data.get("storage_accounts", [])),
-
-                "resources":
-                    len(data.get("resources", [])),
-
-                "role_assignments":
-                    len(data.get("role_assignments", []))
-            }
-
-            return render_template(
-                "index.html",
-                resources=data,
-                findings=findings,
-                risk_score=risk_score,
-                security_grade=security_grade,
-                severity_counts=severity_counts,
-                azure_summary=azure_summary,
-                scan_time=datetime.now().strftime(
-                    "%d/%m/%Y %H:%M:%S"
-                )
-            )
-
-        except Exception as e:
-
-            return render_template(
-                "index.html",
-                error=f"Invalid JSON file: {e}"
-            )
-
-    return render_template(
-        "index.html",
-        error="No file uploaded."
-    )
+    return build_dashboard(snapshot, source="live")
 
 
 @app.route("/download-report")
@@ -119,69 +139,6 @@ def download_report():
         }
     )
 
-@app.route("/audit-live")
-def audit_live():
-
-    try:
-
-        # Authenticate to Azure
-        credential = get_credential()
-
-        # Build Azure snapshot
-        snapshot = build_snapshot(
-            credential
-        )
-
-        # Run audit engine
-        findings = run_audit(
-            snapshot
-        )
-
-        # Calculate risk score
-        risk_score, security_grade = (
-            calculate_risk(findings)
-        )
-
-        # Calculate severity metrics
-        severity_counts = (
-            calculate_severity_counts(
-                findings
-            )
-        )
-
-        # Azure overview statistics
-        azure_summary = {
-
-            "resource_groups":
-                len(snapshot.get("resource_groups", [])),
-
-            "storage_accounts":
-                len(snapshot.get("storage_accounts", [])),
-
-            "resources":
-                len(snapshot.get("resources", [])),
-
-            "role_assignments":
-                len(snapshot.get("role_assignments", []))
-        }
-
-
-        return render_template(
-            "index.html",
-            resources=snapshot,
-            findings=findings,
-            risk_score=risk_score,
-            security_grade=security_grade,
-            severity_counts=severity_counts,
-            azure_summary=azure_summary,
-            scan_time=datetime.now().strftime(
-                "%d/%m/%Y %H:%M:%S"
-            )
-        )
-
-    except Exception as error:
-        import traceback
-        return f"<pre>{traceback.format_exc()}</pre>"
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=os.getenv("FLASK_DEBUG") == "1")

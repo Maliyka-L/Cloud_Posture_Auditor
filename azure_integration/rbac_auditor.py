@@ -1,16 +1,18 @@
-# Analyse Azure RBAC assignments
+MAX_OWNERS = 3
+
+
+# Analyse Azure RBAC role assignments
 def analyze_roles(roles):
 
     findings = []
 
     owner_count = 0
 
-    # Review all collected roles
     for role in roles:
 
-        role_name = role["role_name"]
+        role_name = role.get("role_name", "Unknown Role")
+        principal = role.get("principal_id", "Unknown principal")
 
-        # Owner accounts are highly privileged
         if role_name == "Owner":
 
             owner_count += 1
@@ -18,28 +20,32 @@ def analyze_roles(roles):
             findings.append({
                 "severity": "HIGH",
                 "title": "Privileged Owner Account",
-                "description":
-                    "Owner role grants complete control over Azure resources."
+                "resource": principal,
+                "recommendation":
+                    "Owner grants full control. Review whether this "
+                    "account needs Owner or a lower role."
             })
 
-        # User Access Administrator can grant permissions
         elif role_name == "User Access Administrator":
 
             findings.append({
                 "severity": "MEDIUM",
                 "title": "User Access Administrator Detected",
-                "description":
-                    "This role can manage Azure role assignments."
+                "resource": principal,
+                "recommendation":
+                    "This role can grant access to others. "
+                    "Limit it to accounts that need it."
             })
 
-    # Check for excessive owner accounts
-    if owner_count > 1:
+    if owner_count > MAX_OWNERS:
 
         findings.append({
-            "severity": "HIGH",
-            "title": "Multiple Owner Accounts",
-            "description":
-                "Consider applying least privilege principles."
+            "severity": "MEDIUM",
+            "title": "Too Many Owners",
+            "resource": "Azure Subscription",
+            "recommendation":
+                f"Keep {MAX_OWNERS} or fewer Owners and apply "
+                "least privilege."
         })
 
     return findings

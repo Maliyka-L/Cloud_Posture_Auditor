@@ -24,13 +24,7 @@
                 <h2>Resources Scanned</h2>
 
                 <p>
-                {% if resources %}
-                    {{ resources.storage_accounts|length +
-                       resources.network_security_groups|length +
-                       resources.users|length }}
-                {% else %}
-                    0
-                {% endif %}
+                    {{ resources_scanned if resources_scanned else 0 }}
                 </p>
             </div>
 
@@ -75,7 +69,7 @@
 
         <!-- Severity Analytics -->
 
-        {% if findings %}
+        {% if scanned %}
 
         <section class="summary-cards">
 
@@ -115,24 +109,18 @@
 
         <!-- Executive Summary -->
 
-        {% if findings %}
+        {% if scanned %}
 
         <section class="upload-area">
 
             <h2>Executive Summary</h2>
 
             <p>
-                AzureGuard analyzed
+                AzureGuard checked
+                {{ resources_scanned }}
+                resources and found
                 {{ findings|length }}
-                security findings across
-
-                {{
-                resources.storage_accounts|length +
-                resources.network_security_groups|length +
-                resources.users|length
-                }}
-
-                resources.
+                security findings.
             </p>
 
             <p>
@@ -151,7 +139,7 @@
 
         <!-- Download Report -->
 
-        {% if findings %}
+        {% if scanned %}
 
         <section class="upload-area">
 
@@ -240,10 +228,17 @@
         {{ azure_summary.role_assignments }}
     </p>
 
+    {% if source == "live" %}
     <p style="color:#22c55e;">
-        <strong>Azure Status:</strong>
-        Connected
+        <strong>Source:</strong>
+        Live Azure scan
     </p>
+    {% else %}
+    <p style="color:#f59e0b;">
+        <strong>Source:</strong>
+        Uploaded snapshot
+    </p>
+    {% endif %}
 
 </section>
 
@@ -289,6 +284,18 @@
 
                 </p>
 
+                {% if finding.cis and finding.cis.framework != "Not Mapped" %}
+
+                <p>
+
+                    <strong>CIS:</strong>
+
+                    {{ finding.cis.framework }} - {{ finding.cis.control }}
+
+                </p>
+
+                {% endif %}
+
             </div>
 
             {% endfor %}
@@ -298,8 +305,6 @@
         {% endif %}
 
     </main>
-
-    <script src="{{ url_for('static', filename='app.js') }}"></script>
 
 </body>
 </html>

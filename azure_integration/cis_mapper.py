@@ -1,40 +1,34 @@
-# Map findings to CIS Azure controls
+FRAMEWORK = "CIS Microsoft Azure Foundations Benchmark"
 
 CIS_MAPPINGS = {
 
-    "Privileged Owner Account": {
-        "framework":
-            "CIS Microsoft Azure Foundations Benchmark",
+    "Public Storage Account": "Storage Accounts",
+    "Storage Encryption Disabled": "Storage Accounts",
+    "Secure Transfer Not Required": "Storage Accounts",
+    "Outdated TLS Version": "Storage Accounts",
 
-        "control":
-            "Role Based Access Control"
-    },
+    "Open RDP Port": "Networking",
+    "Open SSH Port": "Networking",
 
-    "Multiple Owner Accounts": {
-        "framework":
-            "CIS Microsoft Azure Foundations Benchmark",
-
-        "control":
-            "Least Privilege"
-    },
-
-    "User Access Administrator Detected": {
-        "framework":
-            "CIS Microsoft Azure Foundations Benchmark",
-
-        "control":
-            "Access Management"
-    }
+    "Privileged Owner Account": "Identity and Access Management",
+    "Guest User With Owner Access": "Identity and Access Management",
+    "Too Many Owners": "Identity and Access Management",
+    "User Access Administrator Detected": "Identity and Access Management"
 }
 
 
-# Return CIS mapping information
+# Return CIS mapping information for a finding
 def get_cis_mapping(finding_title):
 
-    return CIS_MAPPINGS.get(
-        finding_title,
-        {
+    control = CIS_MAPPINGS.get(finding_title)
+
+    if not control:
+        return {
             "framework": "Not Mapped",
             "control": "Not Mapped"
         }
-    )
+
+    return {
+        "framework": FRAMEWORK,
+        "control": control
+    }
