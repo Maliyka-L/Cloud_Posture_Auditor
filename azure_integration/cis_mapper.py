@@ -12,6 +12,7 @@ CIS_MAPPINGS = {
 
     "Privileged Owner Account": "Identity and Access Management",
     "Guest User With Owner Access": "Identity and Access Management",
+    "Guest User With Azure Access": "Identity and Access Management",
     "Too Many Owners": "Identity and Access Management",
     "User Access Administrator Detected": "Identity and Access Management"
 }

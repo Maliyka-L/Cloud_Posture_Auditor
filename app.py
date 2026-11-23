@@ -74,6 +74,7 @@ def build_dashboard(snapshot, source):
         severity_counts=severity_counts,
         azure_summary=azure_summary,
         resources_scanned=resources_scanned,
+        guest_check=snapshot.get("guest_check"),
         scan_time=latest_scan_time
     )
 

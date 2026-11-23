@@ -11,11 +11,37 @@ def analyze_roles(roles):
     for role in roles:
 
         role_name = role.get("role_name", "Unknown Role")
-        principal = role.get("principal_id", "Unknown principal")
+        principal = (
+            role.get("display_name")
+            or role.get("principal_id")
+            or "Unknown principal"
+        )
+        guest = role.get("is_guest", False)
 
         if role_name == "Owner":
-
             owner_count += 1
+
+        if guest and role_name == "Owner":
+
+            findings.append({
+                "severity": "HIGH",
+                "title": "Guest User With Owner Access",
+                "resource": principal,
+                "recommendation":
+                    "Remove Owner access from external guest accounts."
+            })
+
+        elif guest:
+
+            findings.append({
+                "severity": "MEDIUM",
+                "title": "Guest User With Azure Access",
+                "resource": principal,
+                "recommendation":
+                    f"Check this guest still needs the {role_name} role."
+            })
+
+        if role_name == "Owner" and not guest:
 
             findings.append({
                 "severity": "HIGH",
@@ -26,7 +52,7 @@ def analyze_roles(roles):
                     "account needs Owner or a lower role."
             })
 
-        elif role_name == "User Access Administrator":
+        elif role_name == "User Access Administrator" and not guest:
 
             findings.append({
                 "severity": "MEDIUM",

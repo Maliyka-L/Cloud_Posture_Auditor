@@ -246,6 +246,18 @@
         <strong>Source:</strong>
         Live Azure scan
     </p>
+
+    {% if guest_check == "completed" %}
+    <p>
+        <strong>Guest User Check:</strong>
+        Completed
+    </p>
+    {% elif guest_check == "skipped" %}
+    <p style="color:#94a3b8;">
+        <strong>Guest User Check:</strong>
+        Skipped (no directory permission)
+    </p>
+    {% endif %}
     {% else %}
     <p style="color:#f59e0b;">
         <strong>Source:</strong>

@@ -13,7 +13,8 @@ A Python and Flask web app that audits a Microsoft Azure subscription for common
   - **Snapshot upload:** upload a JSON snapshot of an environment (sample included)
 - **Storage checks:** public blob access, encryption disabled, secure transfer (HTTPS) not required, outdated TLS version
 - **Network checks:** reads every network security group rule and flags RDP (3389) or SSH (22) open to the internet, including port ranges, `*` and the `Internet` service tag
-- **RBAC analysis:** converts Azure role IDs into readable role names and flags Owner, guest Owner and User Access Administrator assignments, plus more than 3 subscription Owners
+- **RBAC analysis:** converts Azure role IDs into readable role names and flags Owner and User Access Administrator assignments, plus more than 3 subscription Owners
+- **Guest user detection:** looks up users with Azure roles in Microsoft Entra ID through Microsoft Graph and flags external guest accounts. If the signed-in account can't read the directory, the check is skipped and the dashboard says so
 - **CIS mapping:** every finding is linked to its area of the CIS Microsoft Azure Foundations Benchmark
 - **Risk scoring:** weighted score (High 5, Medium 3, Low 1) converted to a grade from A to F
 - **Dashboard:** severity counts, executive summary, subscription overview and finding cards with recommendations
@@ -27,6 +28,7 @@ A Python and Flask web app that audits a Microsoft Azure subscription for common
 | Backend | Python, Flask |
 | Cloud | Azure SDK for Python (`azure-identity`, `azure-mgmt-resource`, `azure-mgmt-storage`, `azure-mgmt-authorization`, `azure-mgmt-network`) |
 | Frontend | HTML, Jinja2, CSS |
+| Identity | Microsoft Graph API |
 | Reporting | ReportLab (PDF) |
 | Testing | pytest |
 | Cloud account | Azure for Students |
@@ -47,6 +49,7 @@ Cloud_Posture_Auditor/
 │   ├── snapshot_builder.py # Builds the live snapshot
 │   ├── role_mapper.py      # Role ID to role name
 │   ├── nsg_rules.py        # Checks NSG rules for ports open to the internet
+│   ├── guest_checker.py    # Finds guest users through Microsoft Graph
 │   ├── rbac_auditor.py     # RBAC findings
 │   └── cis_mapper.py       # CIS benchmark mapping
 ├── scripts/                # Command-line checks against a live subscription
@@ -116,6 +119,7 @@ python -m scripts.check_connection
 python -m scripts.check_storage_accounts
 python -m scripts.check_network_security_groups
 python -m scripts.check_rbac
+python -m scripts.check_guest_users
 python -m scripts.check_audit
 ```
 
@@ -153,7 +157,7 @@ pytest
 - [x] Automated pytest tests using the sample snapshot
 - [x] Collect network security group rules from Azure
 - [x] PDF report export
-- [ ] Identify guest users via Microsoft Graph (needs Entra ID directory permissions)
+- [x] Identify guest users via Microsoft Graph (skipped automatically without directory permissions)
 
 ## Part of my portfolio
 
